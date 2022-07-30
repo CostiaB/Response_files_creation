@@ -8,6 +8,7 @@ db_dir = '~/Complex-curve-fit/'
 device_type = '4211'
 device_number = '387'
 file_name = 'V_calib.dat'
+approx_file_name = '4211_50s-60Hz'
 
 
 path = os.path.join(db_dir, device_type,
@@ -46,3 +47,7 @@ final = ydata_complex + result.residual.reshape(len(xdata),2)[:,0] + \
 
 plot_appoximation(xdata, ydata, final, ydata_complex,
                   save_fig=True, fig_name='Appreximated_sensor')
+
+
+
+save_poles_zeros(result, filename=approx_file_name)

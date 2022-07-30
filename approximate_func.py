@@ -1,8 +1,10 @@
 import numpy as np
-from typing import List, Tuple
+from typing import List, Tuple, NewType
 from lmfit import Parameters
 import matplotlib.pyplot as plt
 
+
+MinimizerResult = NewType('MinimizerResult', dict)
 
 
 
@@ -20,7 +22,7 @@ def poles_to_poly(x : np.ndarray,
     x : np.ndarray
         array of frequency points
     n : int
-        number of poles
+        number of zeros
     a : float
         scale factor
     p : List[Parameters]
@@ -40,7 +42,7 @@ def poles_to_poly(x : np.ndarray,
     return numerator / denom1 / denom2
 
 
-def split_params(params : Parameters) -> (int, 
+def split_params(params : Parameters) -> (int, int,
                                           List[Parameters]):
     '''
     
@@ -55,7 +57,7 @@ def split_params(params : Parameters) -> (int,
     a : int
         scale factor
     n : int
-        number of poles
+        number of zeros
     q_list : List[Parameters]
         list of parametrs of poles
 
@@ -183,3 +185,60 @@ def plot_appoximation(xdata : np.ndarray,
         plt.savefig(f"./{fig_name }.png")
     plt.show()
         
+    
+def get_approx_params(result : MinimizerResult) -> (int, int, List[float]):
+    '''
+    
+
+    Parameters
+    ----------
+    result : MinimizerResult
+        result of approximation.
+
+    Returns
+    -------
+    a : int
+        predicted scale factor
+    n : int
+        predicted number of zeros
+    poles : List[float]
+        predicted poles
+
+    '''
+    poles = []
+    for key, val in result.params.items():
+        if key == 'a':        
+            a = int(val.value)
+        elif key == 'n':
+            n = int(val.value)
+        else:
+            if 'real' in key:
+                poles.append((val.value, .0))
+            elif 'complex' in key:
+                pole = val.value
+                poles.append((pole, pole))
+                poles.append((pole, -pole))
+    return a, n, poles
+    
+def save_poles_zeros(result : MinimizerResult, filename) -> None:
+    '''
+    
+
+    Parameters
+    ----------
+    result : MinimizerResult
+        result of approximation.
+    filename : TYPE
+        name of file to save
+
+    Returns
+    -------
+    None
+        create file 'filename' with approximation parameters
+
+    '''
+    a, n, poles = get_approx_params(result)
+    with open(f'{filename}', 'w') as f:
+        f.write(f'{a} {n}\n')
+        for pole in poles:
+            f.write(f'{pole[0]:0.4f} {pole[1]:0.4f}\n')
