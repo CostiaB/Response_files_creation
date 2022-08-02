@@ -1,2 +1,2 @@
-*.XSLT linguist-detectable=false
-*.XSLT linguist-vendored=false
+MML2OMML.XSL linguist-detectable=false
+*.XSL linguist-vendored=false
